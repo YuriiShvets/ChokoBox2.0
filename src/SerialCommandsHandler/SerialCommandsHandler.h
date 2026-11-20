@@ -4,6 +4,7 @@
 
 #include "SerialCommand.h"
 #include "../SettingsHandler/SettingsHandler.h"
+#include "../Platform.h"
 #include "Streaming.h"
 
 #include <stdexcept>
@@ -17,17 +18,21 @@ class SerialCommandsHandler
 {
 private:
     SettingsHandler *settings = NULL;
+    Platform *platform = NULL;
 
 public:
-    SerialCommandsHandler(SettingsHandler *settings)
+    SerialCommandsHandler(SettingsHandler *settings, Platform *platform)
     {
         this->settings = settings;
+        this->platform = platform;
 
         Serial << "Handler of serial commands was initialized. Use help command to view all commands." << endl;
     }
 
     void update()
     {
+        platform->update();
+
         if (Serial.available())
         {
             String str = Serial.readString();
@@ -55,6 +60,7 @@ public:
                            << " to " << settings->maxWiFiNetworkPasswordLength << " characters." << endl;
 
                     Serial << "getWiFiNetworkPassword - shows password of the Wi-Fi network." << endl;
+                    Serial << "giveTheChokolate - gives the chokolate" << endl;
                     Serial << "restart - restarts the controller" << endl;
                 }
                 else if (command.getName() == "setwifinetworkname")
@@ -74,6 +80,17 @@ public:
                 else if (command.getName() == "getwifinetworkpassword")
                 {
                     Serial << "Wi-Fi network password: " << settings->getWiFiNetworkPassword() << "." << endl;
+                }
+                else if (command.getName() == "givethechokolate")
+                {
+                    Serial << "Giving the chokolate..." << endl;
+                    Serial << "Opening the platform..." << endl;
+                    platform->Open();
+                    Serial << "Platform opened." << endl;
+                    Serial << "Closing the platform..." << endl;
+                    platform->Close();
+                    Serial << "Platform closed." << endl;
+                    Serial << "Chokolate was given." << endl;
                 }
                 else if (command.getName() == "restart")
                 {

@@ -3,6 +3,7 @@
 #include "SettingsHandler/SettingsHandler.h"
 #include "Streaming.h"
 #include "OTAHandler.h"
+#include "Platform.h"
 
 void setup()
 {
@@ -14,7 +15,9 @@ void setup()
 
   SettingsHandler settings = SettingsHandler();
 
-  SerialCommandsHandler serialCommandsHandler = SerialCommandsHandler(&settings);
+  Platform platform = Platform(D1, D0, D2, D5);
+
+  SerialCommandsHandler serialCommandsHandler = SerialCommandsHandler(&settings, &platform);
 
   OTAHandler _OTAHandler = OTAHandler(settings.getWiFiNetworkName(), settings.getWiFiNetworkPassword());
 
@@ -23,6 +26,7 @@ void setup()
   {
     ESP.wdtFeed();
     _OTAHandler.update();
+    platform.update();
     serialCommandsHandler.update();
   }
 }
