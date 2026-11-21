@@ -71,7 +71,7 @@ public:
             {
                 servo.write(servoSTOWPosition);
                 digitalWrite(powerPin, false);
-                throw runtime_error("Cannot open the platform.");
+                throw runtime_error("Can't open the platform.");
             }
         } while (limitSwitch1.pressed() || limitSwitch2.pressed());
         servo.write(servoSTOWPosition);
@@ -93,7 +93,7 @@ public:
             {
                 servo.write(servoSTOWPosition);
                 digitalWrite(powerPin, false);
-                throw runtime_error("Cannot close the platform.");
+                throw runtime_error("Can't close the platform.");
             }
         } while (!limitSwitch1.pressed() || !limitSwitch2.pressed());
         servo.write(servoSTOWPosition);
