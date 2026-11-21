@@ -4,6 +4,7 @@
 #include "Streaming.h"
 #include "OTAHandler.h"
 #include "Platform.h"
+#include "WebInterface.h"
 
 void setup()
 {
@@ -21,6 +22,8 @@ void setup()
 
   OTAHandler _OTAHandler = OTAHandler(settings.getWiFiNetworkName(), settings.getWiFiNetworkPassword());
 
+  WebInterface webInterface = WebInterface(&platform);
+
   // Main loop.
   while (true)
   {
@@ -28,6 +31,7 @@ void setup()
     _OTAHandler.update();
     platform.update();
     serialCommandsHandler.update();
+    webInterface.update();
   }
 }
 
