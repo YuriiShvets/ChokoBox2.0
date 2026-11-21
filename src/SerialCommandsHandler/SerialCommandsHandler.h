@@ -8,6 +8,7 @@
 #include "Streaming.h"
 
 #include <stdexcept>
+#include <ESP8266WiFiMulti.h>
 
 using namespace std;
 
@@ -60,6 +61,7 @@ public:
                            << " to " << settings->maxWiFiNetworkPasswordLength << " characters." << endl;
 
                     Serial << "getWiFiNetworkPassword - shows password of the Wi-Fi network." << endl;
+                    Serial << "getAvailableNetworks - shows a list of available Wi-Fi networks." << endl;
                     Serial << "giveTheChokolate - gives the chokolate" << endl;
                     Serial << "restart - restarts the controller" << endl;
                 }
@@ -80,6 +82,24 @@ public:
                 else if (command.getName() == "getwifinetworkpassword")
                 {
                     Serial << "Wi-Fi network password: " << settings->getWiFiNetworkPassword() << "." << endl;
+                }
+                else if (command.getName() == "getavailablenetworks")
+                {
+                    Serial.println("Scanning for Wi-Fi networks...");
+                    int n = WiFi.scanNetworks();
+
+                    if (n == 0)
+                    {
+                        Serial.println("No networks found.");
+                    }
+                    else
+                    {
+                        Serial << n << " networks found:" << endl;
+                        for (int i = 0; i < n; i++)
+                        {
+                            Serial << i + 1 << ": " << WiFi.SSID(i) << " (" << WiFi.RSSI(i) << " dBm)" << (WiFi.encryptionType(i) == ENC_TYPE_NONE ? " [Open]" : " [Secured]") << endl;
+                        }
+                    }
                 }
                 else if (command.getName() == "givethechokolate")
                 {
