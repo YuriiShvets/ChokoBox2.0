@@ -50,6 +50,15 @@ public:
         limitSwitch2.interval(debounceInterval);
         limitSwitch2.setPressedState(LOW);
         limitSwitch2.update();
+
+        try
+        {
+            close();
+        }
+        catch (runtime_error &e)
+        {
+            Serial << "[Error] " << e.what() << endl;
+        }
     }
 
     void update()
