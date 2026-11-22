@@ -105,10 +105,10 @@ public:
                 {
                     Serial << "Giving the chokolate..." << endl;
                     Serial << "Opening the platform..." << endl;
-                    platform->Open();
+                    platform->open();
                     Serial << "Platform opened." << endl;
                     Serial << "Closing the platform..." << endl;
-                    platform->Close();
+                    platform->close();
                     Serial << "Platform closed." << endl;
                     Serial << "Chokolate was given." << endl;
                 }

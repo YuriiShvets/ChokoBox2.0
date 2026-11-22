@@ -31,24 +31,45 @@ private:
         server.send(200, "text/html", "<form action=\"/give_the_chocolate\" method=\"POST\"><input type=\"submit\" value=\"Give the chokolate\"></form>");
     }
 
-    void handleGive_the_chocolate()
+    void handleGiveTheChocolate()
     { // If a POST request is made to URI /give_the-chocolate
+
+        Serial << "Giving the chokolate..." << endl;
+        server.sendHeader("Location", "/open_the_door"); // Add a header to respond with a new location for the browser
+        server.send(303);                                // Send it back to the browser with an HTTP status 303 (See Other) to redirect
+    }
+
+    void handleOpenTheDoor()
+    { // If a POST request is made to URI /open_the_door
         try
         {
-            Serial << "Giving the chokolate..." << endl;
             Serial << "Opening the platform..." << endl;
-            platform->Open();
+            platform->open();
             Serial << "Platform opened." << endl;
-            Serial << "Closing the platform..." << endl;
-            platform->Close();
-            Serial << "Platform closed." << endl;
+            server.sendHeader("Location", "/close_the_door"); // Add a header to respond with a new location for the browser
+            server.send(303);                                 // Send it back to the browser with an HTTP status 303 (See Other) to redirect
         }
         catch (runtime_error &e)
         {
             Serial << "[Error] " << e.what() << endl;
+            server.send(200, "text/html", "<h1>Error</h1><p>" + String(e.what()) + "</p>");
         }
-        server.sendHeader("Location", "/"); // Add a header to respond with a new location for the browser to go to the home page again
-        server.send(303);                   // Send it back to the browser with an HTTP status 303 (See Other) to redirect
+    }
+
+    void handleCloseTheDoor()
+    { // If a POST request is made to URI /close_the_door
+        try
+        {
+            Serial << "Closing the platform..." << endl;
+            platform->close();
+            Serial << "Platform closed." << endl;
+            server.send(200, "text/html", "<h1>Success</h1><p>Chokolate delivered.</p>");
+        }
+        catch (runtime_error &e)
+        {
+            Serial << "[Error] " << e.what() << endl;
+            server.send(200, "text/html", "<h1>Error</h1><p>" + String(e.what()) + "</p>");
+        }
     }
 
     void handleNotFound()
@@ -73,7 +94,11 @@ public:
         server.on("/", HTTP_GET, [this]()
                   { this->handleRoot(); }); // Call the 'handleRoot' function when a client requests URI "/"
         server.on("/give_the_chocolate", HTTP_POST, [this]()
-                  { this->handleGive_the_chocolate(); }); // Call the 'handleLED' function when a POST request is made to URI "/give_the-chocolate"
+                  { this->handleGiveTheChocolate(); }); // Call the 'handleGiveTheChocolate' function when a POST request is made to URI "/give_the-chocolate"
+        server.on("/open_the_door", HTTP_GET, [this]()
+                  { this->handleOpenTheDoor(); }); // Call the 'handleOpenTheDoor' function when a POST request is made to URI "/open_the_door"
+        server.on("/close_the_door", HTTP_GET, [this]()
+                  { this->handleCloseTheDoor(); }); // Call the 'handleCloseTheDoor' function when a POST request is made to URI "/close_the_door"
         server.onNotFound([this]()
                           { this->handleNotFound(); }); // When a client requests an unknown URI (i.e. something other than "/"), call function "handleNotFound"
 

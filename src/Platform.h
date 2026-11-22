@@ -9,6 +9,8 @@
 
 using namespace std;
 
+//	Serial must be initialized externaly.
+
 class Platform
 {
 
@@ -56,7 +58,7 @@ public:
         limitSwitch2.update();
     }
 
-    void Open()
+    void open()
     {
         digitalWrite(powerPin, true);
         servo.write(servoOpeningPosition);
@@ -78,10 +80,10 @@ public:
         digitalWrite(powerPin, false);
     }
 
-    void Close()
+    void close()
     {
         digitalWrite(powerPin, true);
-        servo.write(servoClosingPosition); //  TODO remove magic number.
+        servo.write(servoClosingPosition);
         long unsigned int startTime = millis();
         do
         {
