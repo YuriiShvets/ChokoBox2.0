@@ -42,7 +42,6 @@ public:
         else if (error == OTA_RECEIVE_ERROR) Serial << "Receive Failed" << endl;
         else if (error == OTA_END_ERROR) Serial << "End Failed" << endl; });
       ArduinoOTA.begin();
-      Serial << "Test4" << endl; // TODO Remove this
       Serial << "OTA Ready" << endl;
       Serial << "IP address: " << WiFi.localIP() << endl;
     }
