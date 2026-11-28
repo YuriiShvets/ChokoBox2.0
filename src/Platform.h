@@ -11,7 +11,7 @@ using namespace std;
 
 //	Serial must be initialized externaly.
 
-class Platform
+class Platform //  TODO add platform state.
 {
 
 private:
@@ -42,22 +42,23 @@ public:
         limitSwitch1 = Bounce2::Button();
         limitSwitch1.attach(sensor1Pin, INPUT_PULLUP);
         limitSwitch1.interval(debounceInterval);
-        limitSwitch1.setPressedState(LOW);
         limitSwitch1.update();
 
         limitSwitch2 = Bounce2::Button();
         limitSwitch2.attach(sensor2Pin, INPUT_PULLUP);
         limitSwitch2.interval(debounceInterval);
-        limitSwitch2.setPressedState(LOW);
         limitSwitch2.update();
 
-        try
+        if (limitSwitch1.read() || limitSwitch2.read()) //  If the platform is not closed, then close it.
         {
-            close();
-        }
-        catch (runtime_error &e)
-        {
-            Serial << "[Error] " << e.what() << endl;
+            try
+            {
+                close();
+            }
+            catch (runtime_error &e)
+            {
+                Serial << "[Error] " << e.what() << endl;
+            }
         }
     }
 
@@ -72,7 +73,7 @@ public:
         digitalWrite(powerPin, true);
         servo.write(servoOpeningPosition);
         long unsigned int startTime = millis();
-        do
+        while (!limitSwitch1.read() || !limitSwitch2.read())
         {
             ESP.wdtFeed();
 
@@ -84,7 +85,7 @@ public:
                 digitalWrite(powerPin, false);
                 throw runtime_error("Can't open the platform.");
             }
-        } while (limitSwitch1.pressed() || limitSwitch2.pressed());
+        }
         servo.write(servoSTOWPosition);
         digitalWrite(powerPin, false);
     }
@@ -94,7 +95,7 @@ public:
         digitalWrite(powerPin, true);
         servo.write(servoClosingPosition);
         long unsigned int startTime = millis();
-        do
+        while (limitSwitch1.read() || limitSwitch2.read())
         {
             ESP.wdtFeed();
 
@@ -106,7 +107,7 @@ public:
                 digitalWrite(powerPin, false);
                 throw runtime_error("Can't close the platform.");
             }
-        } while (!limitSwitch1.pressed() || !limitSwitch2.pressed());
+        }
         servo.write(servoSTOWPosition);
         digitalWrite(powerPin, false);
     }
