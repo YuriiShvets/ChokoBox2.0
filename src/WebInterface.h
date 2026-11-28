@@ -2,19 +2,19 @@
 #define WebInterface_h
 #pragma once
 
+#include "Platform.h"
+#include "Logger/Logger.h"
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
-#include "Streaming.h"
-#include "Platform.h"
-
 #include <stdexcept>
 
 using namespace std;
 
-//	Serial must be initialized externaly
+//	Logger must be initialized externaly
 //  Wi-Fi must be initialized externaly
 
 class WebInterface
@@ -34,7 +34,7 @@ private:
     void handleGiveTheChocolate()
     { // If a POST request is made to URI /give_the-chocolate
 
-        Serial << "Giving the chokolate..." << endl;
+        LOG(LogLevel::INFO) << "Giving the chokolate...";
         server.sendHeader("Location", "/open_the_door"); // Add a header to respond with a new location for the browser
         server.send(303);                                // Send it back to the browser with an HTTP status 303 (See Other) to redirect
     }
@@ -43,15 +43,15 @@ private:
     { // If a POST request is made to URI /open_the_door
         try
         {
-            Serial << "Opening the platform..." << endl;
+            LOG(LogLevel::INFO) << "Opening the platform...";
             platform->open();
-            Serial << "Platform opened." << endl;
+            LOG(LogLevel::INFO) << "Platform opened.";
             server.sendHeader("Location", "/close_the_door"); // Add a header to respond with a new location for the browser
             server.send(303);                                 // Send it back to the browser with an HTTP status 303 (See Other) to redirect
         }
         catch (runtime_error &e)
         {
-            Serial << "[Error] " << e.what() << endl;
+            LOG(LogLevel::ERROR) << e.what();
             server.send(200, "text/html", "<h1>Error</h1><p>" + String(e.what()) + "</p>");
         }
     }
@@ -60,14 +60,14 @@ private:
     { // If a POST request is made to URI /close_the_door
         try
         {
-            Serial << "Closing the platform..." << endl;
+            LOG(LogLevel::INFO) << "Closing the platform...";
             platform->close();
-            Serial << "Platform closed." << endl;
+            LOG(LogLevel::INFO) << "Platform closed.";
             server.send(200, "text/html", "<h1>Success</h1><p>Chokolate delivered.</p>");
         }
         catch (runtime_error &e)
         {
-            Serial << "[Error] " << e.what() << endl;
+            LOG(LogLevel::ERROR) << e.what();
             server.send(200, "text/html", "<h1>Error</h1><p>" + String(e.what()) + "</p>");
         }
     }
@@ -82,17 +82,17 @@ public:
     {
         if (wifiMulti.run() != WL_CONNECTED)
         { // Wait for Wi-Fi to connect
-            Serial << "Web interface is not available!" << endl;
+            LOG(LogLevel::WARN) << "Web interface is not available!";
             return;
         }
 
         if (MDNS.begin("esp8266"))
         { // Start the mDNS responder for esp8266.local
-            Serial << "mDNS responder started" << endl;
+            LOG(LogLevel::INFO) << "mDNS responder started";
         }
         else
         {
-            Serial << "Error setting up MDNS responder!" << endl;
+            LOG(LogLevel::INFO) << "Error setting up MDNS responder!";
         }
 
         server.on("/", HTTP_GET, [this]()
@@ -107,7 +107,7 @@ public:
                           { this->handleNotFound(); }); // When a client requests an unknown URI (i.e. something other than "/"), call function "handleNotFound"
 
         server.begin(); // Actually start the server
-        Serial << "HTTP server started" << endl;
+        LOG(LogLevel::INFO) << "HTTP server started";
     }
 
     void update()

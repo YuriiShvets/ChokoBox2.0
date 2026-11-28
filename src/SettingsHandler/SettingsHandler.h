@@ -4,12 +4,12 @@
 
 #include "UnsignedInt8Setting.h"
 #include "StringSetting.h"
-#include "Streaming.h"
+#include "Logger/Logger.h"
 
 #include <EEPROM.h>
 #include <stdexcept>
 
-//	Serial must be initialized externaly.
+//	Logger must be initialized externaly.
 
 class SettingsHandler
 {
@@ -25,7 +25,7 @@ public:
         WiFiNettworkPassword = new StringSetting(WiFiNettworkName->getAddress() + WiFiNettworkName->getMaxSize(), maxWiFiNetworkPasswordLength);
 
         uint16_t usedMemory = WiFiNettworkName->getMaxSize() + WiFiNettworkPassword->getMaxSize();
-        Serial << "[Information] used EEPROM memory: " << usedMemory << " bytes." << endl;
+        LOG(LogLevel::INFO) << "used EEPROM memory: " << usedMemory << " bytes.";
         EEPROM.begin(usedMemory);
 
         WiFiNettworkName->updateFromMemory();

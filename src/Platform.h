@@ -2,6 +2,8 @@
 #define Platform_h
 #pragma once
 
+#include "Logger/Logger.h"
+
 #include <Arduino.h>
 #include <Servo.h>
 #include <Bounce2.h>
@@ -9,7 +11,7 @@
 
 using namespace std;
 
-//	Serial must be initialized externaly.
+//	Logger must be initialized externaly.
 
 class Platform //  TODO add platform state.
 {
@@ -57,7 +59,7 @@ public:
             }
             catch (runtime_error &e)
             {
-                Serial << "[Error] " << e.what() << endl;
+                LOG(LogLevel::ERROR) << e.what();
             }
         }
     }

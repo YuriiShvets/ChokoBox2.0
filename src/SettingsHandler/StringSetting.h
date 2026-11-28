@@ -2,13 +2,13 @@
 #define StringSetting_h
 #pragma once
 
-#include "Streaming.h"
+#include "Logger/Logger.h"
 
 #include <EEPROM.h>
 #include <stdexcept>
 
 //	EEPROM must be initialized externaly.
-//	Serial must be initialized externaly.
+//	Logger must be initialized externaly.
 
 class StringSetting
 {
@@ -42,7 +42,7 @@ public:
 			EEPROM.put(addressIndex + 2 + i, newValue.charAt(i));
 		}
 
-		Serial << "[Information] Saving String setting to memory." << endl;
+		LOG(LogLevel::INFO) << "Saving String setting to memory.";
 
 		EEPROM.commit();
 		updateFromMemory();
@@ -75,7 +75,7 @@ public:
 		if (usedSize > maxSize)
 		{
 			usedSize = maxSize;
-			Serial << "[Warning] Settings used space are bigger than maximum size of the setting." << endl;
+			LOG(LogLevel::WARN) << "Settings used space are bigger than maximum size of the setting.";
 		}
 
 		// Reading of a value.

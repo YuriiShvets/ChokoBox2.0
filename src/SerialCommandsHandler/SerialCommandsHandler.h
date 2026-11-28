@@ -3,9 +3,9 @@
 #pragma once
 
 #include "SerialCommand.h"
-#include "../SettingsHandler/SettingsHandler.h"
-#include "../Platform.h"
-#include "Streaming.h"
+#include "SettingsHandler/SettingsHandler.h"
+#include "Platform.h"
+#include "Logger/Logger.h"
 
 #include <stdexcept>
 #include <ESP8266WiFiMulti.h>
@@ -13,7 +13,7 @@
 using namespace std;
 
 //	Handler of serial commands.
-//	Serial must be initialized externaly.
+//	Logger must be initialized externaly.
 
 class SerialCommandsHandler
 {
@@ -27,7 +27,7 @@ public:
         this->settings = settings;
         this->platform = platform;
 
-        Serial << "Handler of serial commands was initialized. Use help command to view all commands." << endl;
+        LOG(LogLevel::INFO) << "Handler of serial commands was initialized. Use help command to view all commands.";
     }
 
     void update()
@@ -38,7 +38,7 @@ public:
         {
             String str = Serial.readString();
 
-            Serial << " -> " << str << endl;
+            LOG(LogLevel::INFO) << " -> " << str;
 
             try
             {
@@ -46,75 +46,75 @@ public:
 
                 if (command.getName() == "help")
                 {
-                    Serial << "help - shows list of all commands." << endl;
+                    LOG(LogLevel::INFO) << "help - shows list of all commands.";
 
-                    Serial << "setWiFiNetworkName <WiFiNetworkName> - command for setting of Wi-Fi network name." << endl;
-                    Serial << "  Wi-Fi network name can be any alphanumeric, case-sensitive entry from " << settings->minWiFiNetworkNameLength
-                           << " to " << settings->maxWiFiNetworkNameLength << " characters." << endl;
-                    Serial << "  Not allowed characters: " << settings->WiFiNetworkNameForbiddenCharacters.c_str() << "." << endl;
-                    Serial << "  In addition, these characters cannot be the first character: " << settings->WiFiNetworkNameForbiddenStartCharacters.c_str() << "." << endl;
+                    LOG(LogLevel::INFO) << "setWiFiNetworkName <WiFiNetworkName> - command for setting of Wi-Fi network name.";
+                    LOG(LogLevel::INFO) << "\tWi-Fi network name can be any alphanumeric, case-sensitive entry from " << settings->minWiFiNetworkNameLength
+                                        << " to " << settings->maxWiFiNetworkNameLength << " characters.";
+                    LOG(LogLevel::INFO) << "\tNot allowed characters: " << settings->WiFiNetworkNameForbiddenCharacters.c_str() << ".";
+                    LOG(LogLevel::INFO) << "\tIn addition, these characters cannot be the first character: " << settings->WiFiNetworkNameForbiddenStartCharacters.c_str() << ".";
 
-                    Serial << "getWiFiNetworkName - shows name of the Wi-Fi network." << endl;
+                    LOG(LogLevel::INFO) << "getWiFiNetworkName - shows name of the Wi-Fi network.";
 
-                    Serial << "setWiFiNetworkPassword <WiFiNetworkPassword> - command for setting of Wi-Fi network password." << endl;
-                    Serial << "  Wi-Fi network password can be any alphanumeric, case-sensitive entry from " << settings->minWiFiNetworkPasswordLength
-                           << " to " << settings->maxWiFiNetworkPasswordLength << " characters." << endl;
+                    LOG(LogLevel::INFO) << "setWiFiNetworkPassword <WiFiNetworkPassword> - command for setting of Wi-Fi network password.";
+                    LOG(LogLevel::INFO) << "\tWi-Fi network password can be any alphanumeric, case-sensitive entry from " << settings->minWiFiNetworkPasswordLength
+                                        << " to " << settings->maxWiFiNetworkPasswordLength << " characters.";
 
-                    Serial << "getWiFiNetworkPassword - shows password of the Wi-Fi network." << endl;
-                    Serial << "getAvailableNetworks - shows a list of available Wi-Fi networks." << endl;
-                    Serial << "giveTheChokolate - gives the chokolate" << endl;
-                    Serial << "restart - restarts the controller" << endl;
+                    LOG(LogLevel::INFO) << "getWiFiNetworkPassword - shows password of the Wi-Fi network.";
+                    LOG(LogLevel::INFO) << "getAvailableNetworks - shows a list of available Wi-Fi networks.";
+                    LOG(LogLevel::INFO) << "giveTheChokolate - gives the chokolate";
+                    LOG(LogLevel::INFO) << "restart - restarts the controller";
                 }
                 else if (command.getName() == "setwifinetworkname")
                 {
                     settings->setWiFiNetworkName(command.getArgument());
-                    Serial << "New Wi-Fi network name: " << settings->getWiFiNetworkName() << "." << endl;
+                    LOG(LogLevel::INFO) << "New Wi-Fi network name: " << settings->getWiFiNetworkName() << ".";
                 }
                 else if (command.getName() == "getwifinetworkname")
                 {
-                    Serial << "Wi-Fi network name: " << settings->getWiFiNetworkName() << "." << endl;
+                    LOG(LogLevel::INFO) << "Wi-Fi network name: " << settings->getWiFiNetworkName() << ".";
                 }
                 else if (command.getName() == "setwifinetworkpassword")
                 {
                     settings->setWiFiNetworkPassword(command.getArgument());
-                    Serial << "New Wi-Fi network password: " << settings->getWiFiNetworkPassword() << "." << endl;
+                    LOG(LogLevel::INFO) << "New Wi-Fi network password: " << settings->getWiFiNetworkPassword() << ".";
                 }
                 else if (command.getName() == "getwifinetworkpassword")
                 {
-                    Serial << "Wi-Fi network password: " << settings->getWiFiNetworkPassword() << "." << endl;
+                    LOG(LogLevel::INFO) << "Wi-Fi network password: " << settings->getWiFiNetworkPassword() << ".";
                 }
                 else if (command.getName() == "getavailablenetworks")
                 {
-                    Serial.println("Scanning for Wi-Fi networks...");
+                    LOG(LogLevel::INFO) << "Scanning for Wi-Fi networks...";
                     int n = WiFi.scanNetworks();
 
                     if (n == 0)
                     {
-                        Serial.println("No networks found.");
+                        LOG(LogLevel::WARN) << "No networks found.";
                     }
                     else
                     {
-                        Serial << n << " networks found:" << endl;
+                        LOG(LogLevel::INFO) << n << " networks found:";
                         for (int i = 0; i < n; i++)
                         {
-                            Serial << i + 1 << ": " << WiFi.SSID(i) << " (" << WiFi.RSSI(i) << " dBm)" << (WiFi.encryptionType(i) == ENC_TYPE_NONE ? " [Open]" : " [Secured]") << endl;
+                            LOG(LogLevel::INFO) << i + 1 << ": " << WiFi.SSID(i) << " (" << WiFi.RSSI(i) << " dBm)" << (WiFi.encryptionType(i) == ENC_TYPE_NONE ? " [Open]" : " [Secured]");
                         }
                     }
                 }
                 else if (command.getName() == "givethechokolate")
                 {
-                    Serial << "Giving the chokolate..." << endl;
-                    Serial << "Opening the platform..." << endl;
+                    LOG(LogLevel::INFO) << "Giving the chokolate...";
+                    LOG(LogLevel::INFO) << "Opening the platform...";
                     platform->open();
-                    Serial << "Platform opened." << endl;
-                    Serial << "Closing the platform..." << endl;
+                    LOG(LogLevel::INFO) << "Platform opened.";
+                    LOG(LogLevel::INFO) << "Closing the platform...";
                     platform->close();
-                    Serial << "Platform closed." << endl;
-                    Serial << "Chokolate was given." << endl;
+                    LOG(LogLevel::INFO) << "Platform closed.";
+                    LOG(LogLevel::INFO) << "Chokolate was given.";
                 }
                 else if (command.getName() == "restart")
                 {
-                    Serial << "Restarting...";
+                    LOG(LogLevel::INFO) << "Restarting...";
                     ESP.restart();
                 }
                 else
@@ -124,7 +124,7 @@ public:
             }
             catch (runtime_error &e)
             {
-                Serial << "[Error] " << e.what() << endl;
+                LOG(LogLevel::ERROR) << e.what();
             }
         }
     }

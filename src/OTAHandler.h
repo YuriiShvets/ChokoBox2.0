@@ -5,10 +5,11 @@
 #define OTAHandler_h
 #pragma once
 
-#include "Streaming.h"
+#include "Logger/Logger.h"
+
 #include <ArduinoOTA.h>
 
-//	Serial must be initialized externaly.
+//	Logger must be initialized externaly.
 
 class OTAHandler
 {
@@ -20,30 +21,30 @@ public:
     WiFi.begin(WiFiNetworkName, WiFiNetworkPassword);
     if (WiFi.waitForConnectResult() != WL_CONNECTED)
     {
-      Serial << "WiFi connection Failed!" << endl;
+      LOG(LogLevel::WARN) << "WiFi connection Failed!";
     }
     else
     {
       ArduinoOTA.setPort(8266);
 
       ArduinoOTA.onStart([]()
-                         { Serial << "OTA Started" << endl; });
+                         { LOG(LogLevel::INFO) << "OTA Started"; });
       ArduinoOTA.onEnd([]()
-                       { Serial << endl
-                                << "OTA Ended" << endl; });
+                       { LOG(LogLevel::INFO) << "OTA Ended"; });
       ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
-                            { Serial << "Progress: " << (progress / (total / 100)) << endl; });
+                            { LOG(LogLevel::INFO) << "Progress: " << (progress / (total / 100)) << "%"; });
       ArduinoOTA.onError([](ota_error_t error)
                          {
-        Serial.printf("Error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR) Serial << "Auth Failed" << endl;
-        else if (error == OTA_BEGIN_ERROR) Serial << "Begin Failed" << endl;
-        else if (error == OTA_CONNECT_ERROR) Serial << "Connect Failed" << endl;
-        else if (error == OTA_RECEIVE_ERROR) Serial << "Receive Failed" << endl;
-        else if (error == OTA_END_ERROR) Serial << "End Failed" << endl; });
+        //  TODO test this.
+        if (error == OTA_AUTH_ERROR) LOG(LogLevel::ERROR) << error << ": Auth Failed";
+        else if (error == OTA_BEGIN_ERROR) LOG(LogLevel::ERROR) << error << ": Begin Failed";
+        else if (error == OTA_CONNECT_ERROR) LOG(LogLevel::ERROR) << error << ": Connect Failed";
+        else if (error == OTA_RECEIVE_ERROR) LOG(LogLevel::ERROR) << error << ": Receive Failed";
+        else if (error == OTA_END_ERROR) LOG(LogLevel::ERROR) << error << ": End Failed";
+        else LOG(LogLevel::ERROR) << error; });
       ArduinoOTA.begin();
-      Serial << "OTA Ready" << endl;
-      Serial << "IP address: " << WiFi.localIP() << endl;
+      LOG(LogLevel::INFO) << "OTA Ready";
+      LOG(LogLevel::INFO) << "IP address: " << WiFi.localIP();
     }
   }
 
