@@ -80,7 +80,11 @@ private:
 public:
     WebInterface(Platform *platform) : server(80), platform(platform)
     {
-        wifiMulti.run();
+        if (wifiMulti.run() != WL_CONNECTED)
+        { // Wait for Wi-Fi to connect
+            Serial << "Web interface is not available!" << endl;
+            return;
+        }
 
         if (MDNS.begin("esp8266"))
         { // Start the mDNS responder for esp8266.local
